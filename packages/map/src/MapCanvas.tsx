@@ -250,10 +250,19 @@ function createWmsGetFeatureInfoUrl(
 
   const styles = stringSource(layer.source.styles) ?? "";
   const format = stringSource(layer.source.format) ?? "image/png";
-  // WMS 1.3.0 renames the SRS parameter to CRS. EPSG:3857 keeps easting/
-  // northing axis order across both versions, so the BBOX layout is unchanged.
+  // WMS 1.3.0 renames the SRS parameter to CRS and the pixel coordinates from
+  // X/Y to I/J. EPSG:3857 keeps easting/northing axis order across both
+  // versions, so the BBOX layout is unchanged.
   const version = stringSource(layer.source.version) ?? "1.1.1";
-  const crsParam = version.startsWith("1.3") ? "CRS" : "SRS";
+  const isV13 = version.startsWith("1.3");
+  const crsParam = isV13 ? "CRS" : "SRS";
+  // Treat a deliberate featureCount of 0 ("all features" on some servers) as
+  // intentional; only fall back to 1 when it is unset (null/undefined), blank,
+  // or non-numeric. Number(null) and Number("") are both 0, so guard those.
+  const featureCount =
+    layer.source.featureCount != null && layer.source.featureCount !== ""
+      ? Number(layer.source.featureCount)
+      : NaN;
 
   return appendWmsQuery(endpoint, [
     ["SERVICE", "WMS"],
@@ -268,10 +277,10 @@ function createWmsGetFeatureInfoUrl(
     ["BBOX", wmsIdentifyBbox3857(map, event.lngLat)],
     ["WIDTH", String(WMS_IDENTIFY_QUERY_SIZE)],
     ["HEIGHT", String(WMS_IDENTIFY_QUERY_SIZE)],
-    ["X", String(WMS_IDENTIFY_QUERY_CENTER)],
-    ["Y", String(WMS_IDENTIFY_QUERY_CENTER)],
+    [isV13 ? "I" : "X", String(WMS_IDENTIFY_QUERY_CENTER)],
+    [isV13 ? "J" : "Y", String(WMS_IDENTIFY_QUERY_CENTER)],
     ["INFO_FORMAT", infoFormat],
-    ["FEATURE_COUNT", String(Number(layer.source.featureCount) || 1)],
+    ["FEATURE_COUNT", String(Number.isFinite(featureCount) ? featureCount : 1)],
   ]);
 }
 
@@ -293,6 +302,31 @@ function parseWmsJsonProperties(value: unknown): {
   properties: Record<string, unknown>;
 } | null {
   if (!value || typeof value !== "object") return null;
+
+  if (Array.isArray(value)) {
+    // Some servers return a bare array of features instead of a FeatureCollection.
+    if (value.length === 0) return { properties: {} };
+    const first = value[0];
+    // A plain property bag (no "properties"/"features" key) is not a GeoJSON
+    // Feature; delegate so the catch-all below returns its own keys rather than
+    // wrapping it into a feature whose properties resolve to {}.
+    if (
+      first &&
+      typeof first === "object" &&
+      !Array.isArray(first) &&
+      !("properties" in first) &&
+      !(
+        "features" in first &&
+        Array.isArray((first as Record<string, unknown>).features)
+      )
+    ) {
+      return parseWmsJsonProperties(first);
+    }
+    return parseWmsJsonProperties({
+      type: "FeatureCollection",
+      features: [first],
+    });
+  }
 
   if ("features" in value && Array.isArray(value.features)) {
     // An empty collection is the standard "no hit" response: report success
@@ -348,23 +382,34 @@ async function fetchWmsIdentifyProperties(
     const text = await response.text();
     if (signal.aborted) return null;
     if (!response.ok) {
-      fallbackText = normalizeText(text) || response.statusText;
+      // HTTP/2 drops the reason phrase, so statusText is often "". Fall back to
+      // the status code so a failed request never surfaces as "No attributes".
+      fallbackText =
+        normalizeText(text) || response.statusText || `HTTP ${response.status}`;
       continue;
     }
-    if (isWmsExceptionResponse(text)) {
+
+    const trimmed = text.trim();
+    const looksLikeJson =
+      contentType.includes("json") ||
+      infoFormat.includes("json") ||
+      trimmed.startsWith("{") ||
+      trimmed.startsWith("[");
+
+    // Only run the XML exception check on bodies that are not JSON, so a JSON
+    // response that merely mentions "ServiceException" is not misread as one.
+    if (!looksLikeJson && isWmsExceptionResponse(text)) {
       fallbackText = normalizeText(text);
       continue;
     }
 
-    if (
-      contentType.includes("json") ||
-      infoFormat.includes("json") ||
-      text.trim().startsWith("{") ||
-      text.trim().startsWith("[")
-    ) {
+    if (looksLikeJson) {
       try {
         const parsed = parseWmsJsonProperties(JSON.parse(text));
         if (parsed) return parsed;
+        // Valid JSON the parser couldn't map: keep the raw text as a fallback
+        // so an unrecognized-but-real response isn't silently discarded.
+        fallbackText = fallbackText || normalizeText(text);
       } catch {
         fallbackText = normalizeText(text);
       }
@@ -610,6 +655,23 @@ export const MapCanvas = memo(function MapCanvas({
         showIdentifyPopup(
           createIdentifyMessagePopupElement(layer.name, "Loading..."),
         );
+        // Closing the loading popup (the × button) must cancel the in-flight
+        // request so its result does not reopen a popup the user dismissed.
+        // Track user dismissal with a flag rather than the abort signal: the
+        // result swap calls remove() on this popup, which also fires "close",
+        // and we must not treat that programmatic swap as a dismissal. Guard the
+        // shared controller by identity so a newer request is not clobbered.
+        let userDismissed = false;
+        const loadingPopup = identifyPopup.current;
+        const onLoadingClose = () => {
+          userDismissed = true;
+          abortController.abort();
+          if (wmsIdentifyAbortController === abortController) {
+            wmsIdentifyAbortController = null;
+          }
+        };
+        // showIdentifyPopup just assigned identifyPopup.current, so it is set.
+        loadingPopup!.once("close", onLoadingClose);
 
         void fetchWmsIdentifyProperties(
           layer,
@@ -618,8 +680,11 @@ export const MapCanvas = memo(function MapCanvas({
           abortController.signal,
         )
           .then((result) => {
-            if (abortController.signal.aborted) return;
+            if (userDismissed || abortController.signal.aborted) return;
             wmsIdentifyAbortController = null;
+            // Detach before the swap so remove()'s synchronous "close" does not
+            // spuriously abort the request that just succeeded.
+            loadingPopup?.off("close", onLoadingClose);
             showIdentifyPopup(
               createIdentifyPopupElement(
                 layer.name,
@@ -629,8 +694,10 @@ export const MapCanvas = memo(function MapCanvas({
             );
           })
           .catch((error: unknown) => {
-            if (isAbortError(error) || abortController.signal.aborted) return;
+            if (userDismissed || isAbortError(error) || abortController.signal.aborted)
+              return;
             wmsIdentifyAbortController = null;
+            loadingPopup?.off("close", onLoadingClose);
             const message =
               error instanceof Error
                 ? error.message
