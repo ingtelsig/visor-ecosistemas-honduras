@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAppStore } from "@geolibre/core";
+import { isDuckDBQueryLayer, useAppStore } from "@geolibre/core";
 import type { GeoLibreLayer } from "@geolibre/core";
 import type { MapController } from "@geolibre/map";
 import { isPlaceholderLayer, placeholderMessage } from "@geolibre/map";
@@ -511,6 +511,7 @@ export function LayerPanel({
           {visibleLayers.map((layer, displayIndex) => {
             const canIdentify =
               layer.type === "geojson" ||
+              isDuckDBQueryLayer(layer) ||
               (layer.type === "wms" &&
                 typeof layer.source.layers === "string" &&
                 Boolean(layer.source.layers.trim()) &&
