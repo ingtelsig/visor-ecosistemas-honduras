@@ -50,10 +50,6 @@ export {
   type DuckDBIdentifyResult,
 } from "./plugins/maplibre-duckdb";
 export {
-  closeGeoParquetLayerPanel,
-  openGeoParquetLayerPanel,
-} from "./plugins/maplibre-geoparquet";
-export {
   closePlanetaryComputerPanel,
   openPlanetaryComputerPanel,
 } from "./plugins/maplibre-planetary-computer";
@@ -74,9 +70,14 @@ export {
   openRasterLayerPanel,
   restoreRasterLayers,
 } from "./plugins/maplibre-raster";
-// The raster-layer-sync internals are not re-exported: the app drives the
-// panel through the two functions above, and the tests import the sync
-// helpers from the module path directly.
+export {
+  closeVectorLayerPanel,
+  openVectorLayerPanel,
+  restoreVectorLayers,
+} from "./plugins/maplibre-vector";
+// The raster-layer-sync and vector-layer-sync internals are not
+// re-exported: the app drives the panels through the functions above, and
+// the tests import the sync helpers from the module paths directly.
 export { maplibreEsriWaybackPlugin } from "./plugins/maplibre-esri-wayback";
 export { maplibreGeoEditorPlugin } from "./plugins/maplibre-geo-editor";
 export { maplibreGeoAgentPlugin } from "./plugins/maplibre-geoagent";

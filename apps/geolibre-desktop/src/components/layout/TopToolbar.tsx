@@ -13,7 +13,6 @@ import {
   closeColorbarPanel,
   closeDuckDBLayerPanel,
   closeEarthEnginePanel,
-  closeGeoParquetLayerPanel,
   closeHtmlPanel,
   closeLegendPanel,
   closeMaplibreComponentControls,
@@ -21,6 +20,7 @@ import {
   closeRasterLayerPanel,
   closeSearchPlacesPanel,
   closeThreeDTilesLayerPanel,
+  closeVectorLayerPanel,
   openFlatGeobufAddVectorLayerPanel,
   openDuckDBLayerPanel,
   isEarthEnginePanelVisible,
@@ -39,6 +39,7 @@ import {
   openSplattingLayerPanel,
   openStacSearchLayerPanel,
   openThreeDTilesLayerPanel,
+  openVectorLayerPanel,
   openZarrLayerPanel,
   subscribeColorbarPanel,
   subscribeEarthEnginePanel,
@@ -399,11 +400,11 @@ export function TopToolbar({
   const resetRuntimeControlsForNewProject = () => {
     closeMaplibreComponentControls(appApi);
     closeRasterLayerPanel(appApi);
+    closeVectorLayerPanel(appApi);
     closePlanetaryComputerPanel(appApi);
     closeEarthEnginePanel(appApi);
     closeThreeDTilesLayerPanel(appApi);
     closeDuckDBLayerPanel(appApi);
-    closeGeoParquetLayerPanel(appApi);
     getPluginManager().restoreProjectState(null, appApi, {
       resetMissingSettings: true,
     });
@@ -425,20 +426,6 @@ export function TopToolbar({
   const handleAddDuckDBLayer = () => {
     openDuckDBLayerPanel(appApi);
   };
-  const handleAddGeoParquetLayer = async () => {
-    try {
-      const { openGeoParquetPanel } =
-        await import("../../lib/geoparquet-duckdb-runtime");
-      openGeoParquetPanel(appApi);
-    } catch (error) {
-      console.error("Failed to open the GeoParquet panel", error);
-      setActionError(
-        error instanceof Error
-          ? error.message
-          : "Failed to open GeoParquet panel",
-      );
-    }
-  };
   const handleAddPMTilesLayer = () => {
     openPMTilesLayerPanel(appApi);
   };
@@ -447,6 +434,9 @@ export function TopToolbar({
   };
   const handleAddRasterLayer = () => {
     openRasterLayerPanel(appApi);
+  };
+  const handleAddVectorLayer = () => {
+    openVectorLayerPanel(appApi);
   };
   const searchPlacesVisible = useSyncExternalStore(
     subscribeSearchPlacesPanel,
@@ -670,7 +660,7 @@ export function TopToolbar({
           <DropdownMenuLabel className="text-xs text-muted-foreground">
             Files
           </DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => setAddDataKind("vector")}>
+          <DropdownMenuItem onSelect={handleAddVectorLayer}>
             Vector Layer
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handleAddRasterLayer}>
@@ -711,7 +701,7 @@ export function TopToolbar({
           <DropdownMenuLabel className="text-xs text-muted-foreground">
             Cloud formats
           </DropdownMenuLabel>
-          <DropdownMenuItem onSelect={() => void handleAddGeoParquetLayer()}>
+          <DropdownMenuItem onSelect={handleAddVectorLayer}>
             GeoParquet Layer
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handleAddFlatGeobufLayer}>

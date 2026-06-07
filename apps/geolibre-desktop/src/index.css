@@ -254,146 +254,6 @@ body,
   top: 10px !important;
 }
 
-.geolibre-geoparquet-control {
-  background-color: transparent !important;
-  box-shadow: none !important;
-  color: hsl(var(--popover-foreground)) !important;
-  height: 0 !important;
-  margin: 0 !important;
-  pointer-events: none;
-}
-
-.geolibre-geoparquet-control .geoparquet-control-toggle {
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.geoparquet-control-panel {
-  background-color: hsl(var(--popover)) !important;
-  border: 1px solid hsl(var(--border));
-  box-sizing: border-box;
-  color: hsl(var(--popover-foreground)) !important;
-  --geolibre-geoparquet-panel-left: 10px;
-  left: var(--geolibre-geoparquet-panel-left) !important;
-  max-height: min(620px, calc(100% - 20px));
-  max-width: min(
-    365px,
-    calc(100vw - var(--geolibre-geoparquet-panel-left) - 22px)
-  );
-  top: 10px !important;
-}
-
-.geoparquet-control-content {
-  max-height: min(560px, calc(100vh - 220px));
-}
-
-.geoparquet-control-header {
-  background-color: hsl(var(--card)) !important;
-  border-bottom-color: hsl(var(--border)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-.geoparquet-control-title,
-.geoparquet-control-section-title,
-.geoparquet-control-label,
-.geoparquet-control-check,
-.geoparquet-control-summary-row strong,
-.geoparquet-control-properties dd {
-  color: hsl(var(--popover-foreground)) !important;
-}
-
-.geoparquet-control-close,
-.geoparquet-control-summary-row span,
-.geoparquet-control-properties dt {
-  color: hsl(var(--muted-foreground)) !important;
-}
-
-.geoparquet-control-close:hover {
-  color: hsl(var(--foreground)) !important;
-}
-
-.geoparquet-control-section {
-  border-bottom-color: hsl(var(--border)) !important;
-}
-
-.geoparquet-control-input,
-.geoparquet-control-file {
-  background-color: hsl(var(--background)) !important;
-  border-color: hsl(var(--input)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-.geoparquet-control-input::placeholder {
-  color: hsl(var(--muted-foreground)) !important;
-}
-
-.geoparquet-control-input:focus {
-  border-color: hsl(var(--ring)) !important;
-  box-shadow: 0 0 0 1px hsl(var(--ring));
-  outline: none;
-}
-
-.geoparquet-control-button {
-  background-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-}
-
-.geoparquet-control-button:hover {
-  background-color: hsl(var(--primary) / 0.9) !important;
-}
-
-.geoparquet-control-secondary-button,
-.geoparquet-control-mini-button {
-  background-color: hsl(var(--secondary)) !important;
-  border-color: hsl(var(--border)) !important;
-  color: hsl(var(--secondary-foreground)) !important;
-}
-
-.geoparquet-control-secondary-button:hover,
-.geoparquet-control-mini-button:hover {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-}
-
-.geoparquet-control-layer-list,
-.geoparquet-control-column-list {
-  border-color: hsl(var(--border)) !important;
-}
-
-.geoparquet-control-status {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-}
-
-.geoparquet-control-error {
-  background-color: hsl(var(--destructive) / 0.12) !important;
-  color: hsl(var(--destructive)) !important;
-}
-
-.geoparquet-control-warning {
-  background-color: hsl(45 90% 55% / 0.14) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-.geoparquet-popup {
-  color: hsl(var(--popover-foreground)) !important;
-}
-
-.maplibregl-popup.geoparquet-attribute-popup .maplibregl-popup-content {
-  background-color: hsl(var(--popover)) !important;
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--popover-foreground)) !important;
-}
-
-.geoparquet-popup th,
-.geoparquet-popup td {
-  border-top-color: hsl(var(--border)) !important;
-}
-
-.geoparquet-popup th {
-  color: hsl(var(--muted-foreground)) !important;
-}
-
 .duckdb-control-content {
   max-height: min(560px, calc(100vh - 220px));
 }
@@ -1531,8 +1391,7 @@ body,
   .geolibre-pmtiles-control .maplibre-gl-pmtiles-layer-panel,
   .geolibre-zarr-control .maplibre-gl-zarr-layer-panel,
   .maplibregl-map .pc-control-panel,
-  .duckdb-control-panel,
-  .geoparquet-control-panel {
+  .duckdb-control-panel {
     box-sizing: border-box;
     /* 96px clears the mobile top toolbar plus the panel's own top offset */
     max-height: calc(100vh - 96px) !important;
@@ -1541,15 +1400,13 @@ body,
     overflow-y: auto;
   }
 
-  .duckdb-control-panel,
-  .geoparquet-control-panel {
+  .duckdb-control-panel {
     left: 10px !important;
     right: auto !important;
     width: calc(100vw - 20px) !important;
   }
 
-  .duckdb-control-content,
-  .geoparquet-control-content {
+  .duckdb-control-content {
     /* 170px = the 96px panel offset above plus the panel header height */
     max-height: calc(100vh - 170px);
     max-height: calc(100dvh - 170px);
@@ -1886,4 +1743,95 @@ body,
   --mlr-shadow: hsl(0 0% 0% / 0.4);
 
   color-scheme: dark;
+}
+
+/* maplibre-gl-vector themes its panel from prefers-color-scheme (the OS
+   setting), while GeoLibre themes from the .dark class on <html>. All of
+   the panel's colors flow through --vc-* custom properties, so remapping
+   them onto the app theme tokens keeps the panel in sync with the in-app
+   light/dark toggle, following the raster panel pattern above. The doubled
+   selectors outrank the upstream prefers-color-scheme block regardless of
+   stylesheet order. The attribute picker popup is themed through the same
+   variables; it mounts in MapLibre's popup container without a hook for a
+   custom class, so it is keyed off html:not(.dark)/.dark instead. */
+.vector-control.geolibre-vector-control,
+.vector-control-panel.geolibre-vector-panel,
+html:not(.dark) .vector-control-popup,
+.dark .vector-control-popup {
+  --vc-bg: hsl(var(--popover));
+  --vc-text: hsl(var(--popover-foreground));
+  --vc-text-strong: hsl(var(--foreground));
+  --vc-text-soft: hsl(var(--popover-foreground) / 0.8);
+  --vc-muted: hsl(var(--muted-foreground));
+  --vc-border: hsl(var(--border));
+  --vc-border-soft: hsl(var(--border) / 0.8);
+  --vc-item-bg: hsl(var(--card));
+  --vc-hover: hsl(var(--foreground) / 0.06);
+  --vc-accent: hsl(var(--primary));
+  --vc-accent-hover: hsl(var(--primary) / 0.85);
+  --vc-accent-soft: hsl(var(--primary) / 0.12);
+  --vc-accent-text: hsl(var(--primary-foreground));
+  --vc-error: hsl(var(--destructive));
+  --vc-input-bg: hsl(var(--popover));
+  --vc-input-border: hsl(var(--input));
+  --vc-scrollbar: hsl(var(--border));
+  --vc-scrollbar-hover: hsl(var(--input));
+  --vc-shadow: 0 0 0 2px hsl(var(--foreground) / 0.12);
+
+  color-scheme: light;
+}
+
+.dark .vector-control.geolibre-vector-control,
+.dark .vector-control-panel.geolibre-vector-panel,
+.dark .vector-control-popup {
+  --vc-shadow: 0 0 0 2px hsl(0 0% 0% / 0.4);
+
+  color-scheme: dark;
+}
+
+/* The upstream stylesheet themes the MapLibre popup chrome around the
+   picker popup from prefers-color-scheme; re-key it to the app theme. The
+   html prefixes also outrank the upstream :has() rules when the OS scheme
+   and the app theme disagree. */
+html:not(.dark) .maplibregl-popup:has(.vector-control-popup) .maplibregl-popup-content {
+  background: hsl(var(--popover));
+  box-shadow: 0 1px 6px hsl(var(--foreground) / 0.25);
+}
+
+html.dark .maplibregl-popup:has(.vector-control-popup) .maplibregl-popup-content {
+  background: hsl(var(--popover));
+  box-shadow: 0 1px 6px hsl(0 0% 0% / 0.5);
+}
+
+html:not(.dark) .maplibregl-popup:has(.vector-control-popup) .maplibregl-popup-close-button,
+html.dark .maplibregl-popup:has(.vector-control-popup) .maplibregl-popup-close-button {
+  color: hsl(var(--muted-foreground));
+}
+
+html:not(.dark) .maplibregl-popup-anchor-top:has(.vector-control-popup) .maplibregl-popup-tip,
+html:not(.dark) .maplibregl-popup-anchor-top-left:has(.vector-control-popup) .maplibregl-popup-tip,
+html:not(.dark) .maplibregl-popup-anchor-top-right:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-top:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-top-left:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-top-right:has(.vector-control-popup) .maplibregl-popup-tip {
+  border-bottom-color: hsl(var(--popover));
+}
+
+html:not(.dark) .maplibregl-popup-anchor-bottom:has(.vector-control-popup) .maplibregl-popup-tip,
+html:not(.dark) .maplibregl-popup-anchor-bottom-left:has(.vector-control-popup) .maplibregl-popup-tip,
+html:not(.dark) .maplibregl-popup-anchor-bottom-right:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-bottom:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-bottom-left:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-bottom-right:has(.vector-control-popup) .maplibregl-popup-tip {
+  border-top-color: hsl(var(--popover));
+}
+
+html:not(.dark) .maplibregl-popup-anchor-left:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-left:has(.vector-control-popup) .maplibregl-popup-tip {
+  border-right-color: hsl(var(--popover));
+}
+
+html:not(.dark) .maplibregl-popup-anchor-right:has(.vector-control-popup) .maplibregl-popup-tip,
+html.dark .maplibregl-popup-anchor-right:has(.vector-control-popup) .maplibregl-popup-tip {
+  border-left-color: hsl(var(--popover));
 }
