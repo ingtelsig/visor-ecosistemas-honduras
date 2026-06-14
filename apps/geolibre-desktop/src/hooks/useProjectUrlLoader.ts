@@ -102,9 +102,14 @@ function projectUrlFromLocation(): string | null {
   const bareQuery = search.startsWith("?")
     ? safeDecodeURIComponent(search.slice(1)).trim()
     : "";
-  return /^https?:\/\//i.test(bareQuery)
+  const queryUrl = /^https?:\/\//i.test(bareQuery)
     ? normalizeProjectUrl(bareQuery)
     : null;
+
+  if (queryUrl) return queryUrl;
+
+  // Fallback to the default Honduras project when no query URL is specified
+  return "./datos/proyecto.geolibre.json";
 }
 
 function safeDecodeURIComponent(value: string): string {

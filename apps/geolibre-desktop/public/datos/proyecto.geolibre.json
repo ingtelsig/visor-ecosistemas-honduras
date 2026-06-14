@@ -1,0 +1,11 @@
+{
+  "version": "1.2.0",
+  "name": "Mapa de Ecosistemas de Honduras",
+  "mapView": {
+    "center": [-86.2, 15.2],
+    "zoom": 7,
+    "bearing": 0,
+    "pitch": 0
+  },
+  "layers": []
+}
